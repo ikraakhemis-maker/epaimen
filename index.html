@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#070F14">
+<title>منصّة القبض · الدفع الإلكتروني الموحّد</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* ===== THEME ===== */
+:root{
+  --bg:#070F14;
+  --bg-soft:#0A1820;
+  --surface:#0F242D;
+  --surface-2:#16323D;
+  --surface-3:#1E404E;
+  --paper:#FDFBF5;
+  --paper-dim:#F0EAD9;
+  --ink:#0D1A1F;
+
+  --teal:#00D9A8;
+  --teal-deep:#00A882;
+  --teal-glow:rgba(0,217,168,0.35);
+  --amber:#FFB938;
+  --amber-glow:rgba(255,185,56,0.35);
+  --coral:#FF6B5B;
+  --purple:#9B8CFF;
+  --blue:#4DA8FF;
+  --pink:#F472B6;
+
+  --muted:#7A96A0;
+  --muted-dark:#4A6270;
+  --line:rgba(253,251,245,0.08);
+  --line-strong:rgba(253,251,245,0.16);
+  --danger:#FF5C4D;
+
+  --radius:20px;
+  --radius-sm:12px;
+  --ease:cubic-bezier(.4,0,.2,1);
+  --sbw:288px;
+  --hh:70px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none;}
+body{
+  font-family:'Cairo',sans-serif;
+  background:var(--bg);color:var(--paper);
+  direction:rtl;height:100vh;height:100dvh;
+  width:100%;max-width:100vw;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(circle at 10% 5%, rgba(0,217,168,0.07), transparent 40%),
+    radial-gradient(circle at 90% 95%, rgba(155,140,255,0.06), transparent 40%);
+  pointer-events:none;z-index:0;
+}
+.mono{font-family:'JetBrains Mono',monospace;direction:ltr;display:inline-block;}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:10px;}
+::-webkit-scrollbar-thumb:hover{background:var(--teal);}
+
+.app{
+  display:flex;height:100vh;height:100dvh;overflow:hidden;max-width:100vw;
+  padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);
+  position:relative;z-index:1;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:var(--sbw);min-width:var(--sbw);
+  background:
+    linear-gradient(180deg, rgba(0,217,168,0.04) 0%, transparent 30%),
+    linear-gradient(180deg, #08161A 0%, #0B1F25 50%, #08161A 100%);
+  border-left:1px solid var(--line);
+  display:flex;flex-direction:column;overflow:hidden;
+  transition:width .35s var(--ease), min-width .35s var(--ease), margin-right .35s var(--ease);
+  position:relative;z-index:100;
+  box-shadow:8px 0 30px rgba(0,0,0,0.3);
+}
+.sidebar::before{
+  content:'';position:absolute;top:0;right:0;bottom:0;width:1px;
+  background:linear-gradient(180deg, transparent, var(--teal-glow) 20%, var(--teal-glow) 80%, transparent);
+  opacity:0.4;
+}
+.sidebar.hidden{margin-right:calc(var(--sbw) * -1);min-width:0;width:0;}
+
+.brand{
+  padding:22px 20px 20px;display:flex;align-items:center;gap:13px;
+  border-bottom:1px solid var(--line);flex-shrink:0;
+}
+.brand-seal{
+  width:44px;height:44px;border-radius:50%;
+  background:linear-gradient(135deg, var(--amber), var(--coral));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Almarai',sans-serif;font-weight:800;font-size:14px;
+  color:#0B1F25;position:relative;flex-shrink:0;
+  box-shadow:0 0 0 3px rgba(255,185,56,0.15), 0 8px 20px rgba(255,185,56,0.2);
+}
+.brand-seal::after{
+  content:'';position:absolute;inset:-5px;border-radius:50%;
+  border:1.5px dashed rgba(255,185,56,0.35);
+}
+.brand-title{
+  font-family:'Almarai',sans-serif;font-weight:800;font-size:16px;
+  color:var(--paper);letter-spacing:.3px;
+}
+.brand-sub{font-size:10.5px;color:var(--muted);margin-top:3px;letter-spacing:.5px;}
+
+.sidebar-menu{
+  flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+  padding:12px 10px 14px;scrollbar-width:thin;
+}
+.menu-label{
+  font-size:10px;color:var(--muted-dark);
+  letter-spacing:1.5px;padding:16px 12px 8px;font-weight:700;
+  display:flex;align-items:center;gap:8px;
+}
+.menu-label .cat-dot{
+  width:6px;height:6px;border-radius:50%;flex-shrink:0;
+  box-shadow:0 0 8px currentColor;
+}
+.menu-label::after{
+  content:'';flex:1;height:1px;
+  background:linear-gradient(to left, var(--line), transparent);
+}
+.menu-item{
+  display:flex;align-items:center;gap:11px;
+  padding:10px 12px;border-radius:11px;
+  color:rgba(253,251,245,0.65);font-weight:500;font-size:13.5px;
+  transition:background .2s var(--ease), color .2s var(--ease), transform .2s var(--ease);
+  cursor:pointer;margin-bottom:2px;border:none;background:none;width:100%;
+  text-align:right;font-family:'Cairo',sans-serif;position:relative;
+}
+.menu-item:hover{
+  background:rgba(253,251,245,0.05);
+  color:var(--paper);transform:translateX(-2px);
+}
+.menu-item.active{
+  background:linear-gradient(270deg, rgba(0,217,168,0.22), rgba(0,217,168,0.04));
+  color:var(--paper);
+  box-shadow:inset 0 0 0 1px rgba(0,217,168,0.15);
+}
+.menu-item.active::before{
+  content:'';position:absolute;right:-2px;top:8px;bottom:8px;width:3px;border-radius:3px;
+  background:linear-gradient(180deg, var(--teal), var(--teal-deep));
+  box-shadow:0 0 12px var(--teal-glow);
+}
+.menu-item i{width:18px;text-align:center;font-size:13px;color:var(--teal);transition:color .2s;}
+.menu-item.active i{color:var(--amber);}
+
+.sidebar-footer{
+  padding:14px 18px;border-top:1px solid var(--line);
+  flex-shrink:0;display:flex;align-items:center;gap:11px;
+}
+.sidebar-footer .dot{
+  width:8px;height:8px;border-radius:50%;background:var(--teal);
+  box-shadow:0 0 0 3px rgba(0,217,168,0.2), 0 0 10px var(--teal);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:1;transform:scale(1);}
+  50%{opacity:0.7;transform:scale(1.2);}
+}
+.sidebar-footer .txt div:first-child{font-weight:600;font-size:12.5px;}
+.sidebar-footer .txt div:last-child{font-size:10.5px;color:var(--muted);margin-top:2px;}
+
+/* ===== MAIN ===== */
+.main{
+  flex:1;display:flex;flex-direction:column;min-width:0;
+  background:var(--bg-soft);position:relative;
+}
+.header{
+  height:var(--hh);
+  background:rgba(15,36,45,0.85);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  padding:0 24px;display:flex;align-items:center;justify-content:space-between;
+  gap:16px;border-bottom:1px solid var(--line);flex-shrink:0;z-index:50;
+  position:relative;
+}
+.header::after{
+  content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;
+  background:linear-gradient(90deg, transparent, var(--teal-glow), transparent);
+  opacity:0.5;
+}
+.header-left{display:flex;align-items:center;gap:14px;}
+
+.icon-btn{
+  background:rgba(253,251,245,0.04);
+  border:1px solid var(--line-strong);
+  color:var(--paper);width:40px;height:40px;border-radius:11px;
+  font-size:15px;cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:.2s var(--ease);
+}
+.icon-btn:hover{
+  background:rgba(0,217,168,0.12);border-color:var(--teal);color:var(--teal);
+}
+.icon-btn:active{transform:scale(0.94);}
+.header-title{font-family:'Almarai',sans-serif;font-weight:700;font-size:15px;}
+.header-title span{color:var(--amber);}
+
+.search-box{
+  flex:1;min-width:0;max-width:500px;
+  display:flex;align-items:center;gap:10px;
+  background:rgba(7,15,20,0.6);
+  border:1px solid var(--line-strong);border-radius:12px;padding:0 14px;
+  transition:.25s var(--ease);
+}
+.search-box:focus-within{
+  border-color:var(--teal);
+  box-shadow:0 0 0 3px rgba(0,217,168,0.15);
+  background:rgba(7,15,20,0.85);
+}
+.search-box i{color:var(--muted);font-size:13px;transition:color .2s;}
+.search-box:focus-within i{color:var(--teal);}
+.search-box input{
+  border:none;background:none;padding:11px 0;font-size:13.5px;width:100%;
+  outline:none;font-family:'Cairo',sans-serif;color:var(--paper);direction:rtl;
+}
+.search-box input::placeholder{color:var(--muted-dark);}
+
+.stat-pill{
+  background:rgba(0,217,168,0.08);
+  border:1px solid rgba(0,217,168,0.25);
+  padding:8px 14px;border-radius:50px;font-size:11.5px;font-weight:600;
+  display:flex;align-items:center;gap:6px;white-space:nowrap;color:var(--teal);
+}
+
+.content{
+  flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:28px 30px 40px;max-width:100%;scroll-behavior:smooth;
+}
+
+/* ===== HERO ===== */
+.hero{
+  background:
+    radial-gradient(circle at 15% 20%, rgba(255,185,56,0.22), transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(155,140,255,0.18), transparent 50%),
+    linear-gradient(135deg, #00A882 0%, #0B6E5A 60%, #0A4D3F 100%);
+  border:1px solid rgba(255,185,56,0.2);
+  border-radius:var(--radius);padding:34px 34px 30px;margin-bottom:28px;
+  position:relative;overflow:hidden;
+  box-shadow:0 20px 50px -20px rgba(0,217,168,0.35);
+}
+.hero::before{
+  content:'';position:absolute;top:-50%;left:-20%;width:80%;height:200%;
+  background:linear-gradient(115deg, transparent 40%, rgba(253,251,245,0.07) 50%, transparent 60%);
+  transform:rotate(-15deg);animation:shine 9s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes shine{
+  0%,100%{transform:translateX(-50%) rotate(-15deg);}
+  50%{transform:translateX(50%) rotate(-15deg);}
+}
+.hero-eyebrow{
+  font-size:11px;letter-spacing:2px;color:var(--amber);
+  font-weight:700;text-transform:uppercase;
+  display:flex;align-items:center;gap:8px;margin-bottom:12px;position:relative;
+}
+.hero-eyebrow .mono{font-size:10.5px;color:rgba(253,251,245,0.7);letter-spacing:0.5px;}
+.hero h1{
+  font-family:'Almarai',sans-serif;font-weight:800;font-size:27px;
+  margin-bottom:10px;position:relative;line-height:1.45;letter-spacing:-0.3px;
+}
+.hero p{
+  font-size:14px;color:rgba(253,251,245,0.82);
+  max-width:600px;position:relative;line-height:1.85;
+}
+.hero-stats{display:flex;gap:14px;margin-top:24px;flex-wrap:wrap;position:relative;}
+.hero-stat{
+  background:rgba(253,251,245,0.1);
+  border:1px dashed rgba(253,251,245,0.28);
+  padding:13px 20px;border-radius:13px;min-width:112px;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  transition:.2s var(--ease);
+}
+.hero-stat:hover{background:rgba(253,251,245,0.15);border-color:var(--amber);}
+.hero-stat .n{
+  font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;
+  color:var(--amber);text-shadow:0 0 20px rgba(255,185,56,0.5);
+}
+.hero-stat .l{font-size:11px;color:rgba(253,251,245,0.78);margin-top:3px;}
+
+/* ===== SECTION HEADERS ===== */
+.sec-head{display:flex;align-items:center;gap:10px;margin:30px 0 16px;}
+.sec-head h2{
+  font-family:'Almarai',sans-serif;font-weight:700;font-size:15.5px;
+  color:var(--paper);display:flex;align-items:center;gap:9px;
+}
+.sec-head .cat-bullet{
+  width:9px;height:9px;border-radius:50%;flex-shrink:0;
+  display:inline-block;
+}
+.sec-head .count{
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);
+  border:1px solid var(--line);padding:2px 10px;border-radius:20px;
+}
+.sec-head::after{
+  content:'';flex:1;height:1px;
+  background:linear-gradient(to left, var(--line), transparent);
+}
+
+/* ===== SERVICE STUBS ===== */
+.stub-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
+.stub{
+  background:var(--paper);color:var(--ink);
+  border-radius:16px;display:flex;flex-direction:column;
+  cursor:pointer;overflow:hidden;
+  box-shadow:0 8px 24px rgba(0,0,0,0.28);
+  transition:transform .25s var(--ease), box-shadow .25s var(--ease);
+  position:relative;
+  border:1px solid var(--paper-dim);
+  border-top:3px solid var(--service-color, var(--teal));
+}
+.stub:hover{
+  transform:translateY(-5px);
+  box-shadow:0 18px 40px -10px rgba(0,0,0,0.45), 0 0 0 1px var(--service-color);
+}
+.stub:active{transform:translateY(-2px) scale(0.99);}
+.stub-top{padding:16px 16px 14px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.stub-icon{
+  width:40px;height:40px;border-radius:11px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--service-color, var(--teal));
+  color:#fff;font-size:16px;flex-shrink:0;
+  box-shadow:0 4px 14px rgba(0,0,0,0.2);
+}
+.stub-seal{
+  width:32px;height:32px;border-radius:50%;
+  border:1.5px dashed var(--muted-dark);
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:700;color:var(--muted-dark);
+  font-family:'JetBrains Mono',monospace;
+  flex-shrink:0;transform:rotate(-8deg);
+}
+.stub-name{
+  font-family:'Almarai',sans-serif;font-weight:700;font-size:14.5px;
+  padding:0 16px;line-height:1.5;
+}
+.stub-cat{font-size:10.5px;color:var(--muted-dark);padding:4px 16px 14px;}
+.stub-tear{
+  position:relative;height:1px;border-top:1.5px dashed var(--paper-dim);margin:0 4px;
+}
+.stub-tear::before,.stub-tear::after{
+  content:'';position:absolute;top:-6px;width:12px;height:12px;border-radius:50%;
+  background:var(--bg-soft);
+}
+.stub-tear::before{right:-10px;}
+.stub-tear::after{left:-10px;}
+.stub-bottom{
+  padding:11px 16px;display:flex;align-items:center;justify-content:space-between;
+  font-size:11px;font-weight:700;color:var(--service-color, var(--teal-deep));
+}
+.stub-bottom i{transition:transform .25s var(--ease);}
+.stub:hover .stub-bottom i{transform:translateX(-4px);}
+
+/* ===== PANEL ===== */
+.panel{
+  background:linear-gradient(180deg, var(--surface), var(--bg-soft));
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:24px;margin-top:32px;position:relative;
+}
+.panel-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:18px;flex-wrap:wrap;gap:12px;
+}
+.panel-title{
+  font-family:'Almarai',sans-serif;font-weight:700;font-size:15px;
+  display:flex;align-items:center;gap:9px;
+}
+.panel-title i{color:var(--amber);filter:drop-shadow(0 0 8px var(--amber-glow));}
+.btn{
+  padding:10px 18px;border-radius:11px;font-size:13px;font-weight:600;
+  cursor:pointer;font-family:'Cairo',sans-serif;border:none;
+  transition:.2s var(--ease);display:flex;align-items:center;gap:8px;
+}
+.btn:active{transform:scale(0.97);}
+.btn-primary{
+  background:linear-gradient(135deg, var(--teal), var(--teal-deep));
+  color:#fff;box-shadow:0 6px 20px -6px var(--teal-glow);
+}
+.btn-primary:hover{
+  box-shadow:0 8px 24px -6px var(--teal-glow), 0 0 0 1px var(--teal);
+  transform:translateY(-1px);
+}
+.btn-ghost{
+  background:rgba(253,251,245,0.04);
+  border:1px solid var(--line-strong);color:var(--paper);
+}
+.btn-ghost:hover{
+  border-color:var(--teal);color:var(--teal);background:rgba(0,217,168,0.06);
+}
+
+.custom-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;}
+.custom-item{
+  display:flex;align-items:center;gap:10px;
+  padding:13px 14px;background:rgba(7,15,20,0.5);
+  border:1px solid var(--line);border-radius:11px;cursor:pointer;
+  font-size:13px;font-weight:500;transition:.2s var(--ease);position:relative;
+}
+.custom-item:hover{
+  border-color:var(--teal);background:rgba(0,217,168,0.08);
+  transform:translateY(-1px);
+}
+.custom-item i.link-i{color:var(--amber);}
+.custom-item .del{
+  margin-right:auto;opacity:0;color:var(--danger);
+  font-size:12px;transition:opacity .15s;padding:4px;
+}
+.custom-item:hover .del{opacity:1;}
+
+.empty{text-align:center;padding:38px 20px;color:var(--muted);}
+.empty i{font-size:32px;margin-bottom:12px;opacity:.35;display:block;color:var(--teal);}
+.empty p{font-size:13px;}
+.empty .hint{font-size:11.5px;margin-top:6px;color:var(--muted-dark);}
+
+.footnote{
+  text-align:center;color:var(--muted-dark);
+  font-size:11.5px;padding:30px 0 10px;line-height:2;
+}
+
+/* ===== STATUS BAR ===== */
+.status-bar{
+  background:#051015;color:rgba(253,251,245,0.6);
+  padding:0 22px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:11px;border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom);
+  height:calc(32px + env(safe-area-inset-bottom));
+}
+.status-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--teal);
+  display:inline-block;margin-left:7px;
+  box-shadow:0 0 0 3px rgba(0,217,168,0.2), 0 0 10px var(--teal);
+  animation:pulse 2s ease-in-out infinite;
+}
+
+/* ===== TOAST ===== */
+.toast{
+  position:fixed;bottom:64px;right:22px;
+  background:linear-gradient(135deg, var(--surface-2), var(--surface));
+  border:1px solid var(--line-strong);color:var(--paper);
+  padding:14px 20px;border-radius:13px;font-size:13px;font-weight:500;
+  box-shadow:0 20px 40px -10px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,217,168,0.1);
+  z-index:1000;transform:translateX(140%);
+  transition:transform .4s var(--ease);
+  display:flex;align-items:center;gap:10px;max-width:340px;
+}
+.toast.show{transform:translateX(0);}
+
+/* ===== MODAL ===== */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(5,16,21,0.7);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;
+  z-index:2000;opacity:0;pointer-events:none;
+  transition:opacity .25s var(--ease);padding:20px;
+}
+.modal-overlay.show{opacity:1;pointer-events:all;}
+.modal{
+  background:linear-gradient(180deg, var(--surface-2), var(--surface));
+  border:1px solid var(--line-strong);border-radius:18px;
+  padding:26px;width:380px;max-width:100%;
+  transform:translateY(20px) scale(0.96);
+  transition:transform .3s var(--ease);
+  box-shadow:0 30px 60px -20px rgba(0,0,0,0.7);
+}
+.modal-overlay.show .modal{transform:translateY(0) scale(1);}
+.modal h3{
+  font-family:'Almarai',sans-serif;font-size:16px;
+  margin-bottom:18px;display:flex;align-items:center;gap:9px;
+}
+.modal h3 i{color:var(--amber);}
+.field{margin-bottom:14px;}
+.field label{
+  font-size:12px;color:var(--muted);
+  display:block;margin-bottom:7px;font-weight:500;
+}
+.field input{
+  width:100%;padding:11px 13px;border-radius:10px;
+  border:1px solid var(--line-strong);background:rgba(7,15,20,0.6);
+  color:var(--paper);font-family:'Cairo',sans-serif;font-size:13px;
+  outline:none;transition:.2s var(--ease);
+}
+.field input:focus{
+  border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,217,168,0.15);
+}
+.modal-actions{display:flex;gap:10px;margin-top:20px;}
+.modal-actions .btn{flex:1;justify-content:center;}
+
+.sidebar-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.55);
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+  z-index:150;opacity:0;pointer-events:none;
+  transition:opacity .3s var(--ease);
+}
+.sidebar-overlay.show{opacity:1;pointer-events:all;}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.fade-in{animation:fadeIn .4s var(--ease);}
+
+/* ===== TABLET ===== */
+@media (max-width:1024px){
+  :root{--sbw:250px;}
+  .stub-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr));}
+  .hero{padding:28px 26px 24px;}
+  .hero h1{font-size:24px;}
+  .content{padding:24px 22px 36px;}
+}
+
+/* ===== MOBILE ===== */
+@media (max-width:768px){
+  :root{--hh:60px;--sbw:82vw;}
+  .sidebar{
+    position:fixed;top:0;right:0;height:100vh;height:100dvh;
+    max-width:340px;transform:translateX(100%);
+    transition:transform .35s var(--ease);z-index:200;
+    border-left:none;border-right:1px solid var(--line);
+  }
+  .sidebar.open{transform:translateX(0);}
+  .sidebar.hidden{margin-right:0;transform:translateX(100%);}
+  .header{padding:0 14px;gap:10px;}
+  .header-title{display:none;}
+  .stat-pill{display:none;}
+  .content{padding:18px 16px 32px;}
+  .hero{padding:24px 20px 22px;margin-bottom:22px;}
+  .hero h1{font-size:20px;line-height:1.5;}
+  .hero p{font-size:13px;line-height:1.75;}
+  .hero-stats{gap:10px;margin-top:18px;}
+  .hero-stat{padding:11px 16px;min-width:100px;}
+  .hero-stat .n{font-size:19px;}
+  .stub-grid{grid-template-columns:repeat(2,1fr);gap:12px;}
+  .stub{border-radius:13px;}
+  .stub-icon{width:36px;height:36px;font-size:14px;}
+  .stub-name{font-size:13px;padding:0 13px;}
+  .stub-cat{padding:4px 13px 12px;}
+  .stub-top{padding:13px 13px 11px;}
+  .stub-bottom{padding:10px 13px;font-size:10.5px;}
+  .custom-grid{grid-template-columns:1fr 1fr;gap:8px;}
+  .custom-item{padding:11px 12px;font-size:12.5px;}
+  /* منع تكبير iOS */
+  .search-box input,.field input{font-size:16px;}
+  .search-box{padding:0 12px;}
+  .toast{
+    right:14px;left:14px;max-width:none;
+    bottom:calc(44px + env(safe-area-inset-bottom));
+  }
+  .panel{padding:18px;}
+  .sec-head{margin:22px 0 12px;}
+  .sec-head h2{font-size:14px;}
+  .footnote{padding:22px 0 10px;font-size:11px;}
+
+  /* Bottom-sheet modal on mobile */
+  .modal-overlay{align-items:flex-end;padding:0;}
+  .modal{
+    width:100%;max-width:100%;
+    border-radius:22px 22px 0 0;
+    padding:24px 22px calc(24px + env(safe-area-inset-bottom));
+    transform:translateY(100%);
+  }
+  .modal-overlay.show .modal{transform:translateY(0);}
+}
+
+@media (max-width:420px){
+  .stub-icon{width:34px;height:34px;font-size:13px;border-radius:9px;}
+  .stub-seal{display:none;}
+  .stub-name{font-size:12.5px;}
+  .hero h1{font-size:18px;}
+  .hero-stat .l{font-size:10px;}
+}
+
+@media (max-width:360px){
+  .stub-grid{grid-template-columns:1fr;}
+  .custom-grid{grid-template-columns:1fr;}
+  .hero h1{font-size:17px;}
+  .hero-stats{gap:8px;}
+  .brand{padding:18px 16px 16px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-seal">AR</div>
+      <div>
+        <div class="brand-title">منصّة القبض</div>
+        <div class="brand-sub">الدفع الإلكتروني الموحّد</div>
+      </div>
+    </div>
+    <nav class="sidebar-menu" id="sidebarMenu"></nav>
+    <div class="sidebar-footer">
+      <span class="dot"></span>
+      <div class="txt">
+        <div>الخدمة متصلة</div>
+        <div>جلسة زائر</div>
+      </div>
+    </div>
+    <div class="sidebar-footer" style="border-top:1px solid var(--line);">
+      <i class="fas fa-code" style="color:var(--amber);width:8px;"></i>
+      <div class="txt">
+        <div>المطور: ركاب عبدالقادر</div>
+        <div class="mono" style="direction:ltr;">0552656078</div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="main">
+    <header class="header">
+      <div class="header-left">
+        <button class="icon-btn" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+        <div class="header-title">منصّة <span>القبض</span></div>
+      </div>
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="ابحث عن مؤسسة أو خدمة…">
+      </div>
+      <div class="stat-pill"><i class="fas fa-layer-group"></i> <span id="svcCount">14</span> خدمة موحّدة</div>
+    </header>
+
+    <div class="content" id="content"></div>
+
+    <div class="status-bar">
+      <span><span class="status-dot"></span><span id="statusMessage">جاهز للاستخدام</span></span>
+      <span class="mono" id="statusTime">00:00:00</span>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <i id="toastIcon" class="fas fa-check-circle" style="color:var(--teal)"></i>
+  <span id="toastMessage">تم</span>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3><i class="fas fa-link"></i> إضافة رابط مخصص</h3>
+    <div class="field">
+      <label>اسم الخدمة</label>
+      <input type="text" id="linkNameInput" placeholder="مثال: فاتورة الهاتف">
+    </div>
+    <div class="field">
+      <label>الرابط</label>
+      <input type="text" id="linkUrlInput" placeholder="example.com" dir="ltr" style="text-align:left;">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveCustomLink()"><i class="fas fa-check"></i> حفظ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ==========================================================
+  // DATA — مجموعات قطاعية بألوان زاهية
+  // ==========================================================
+  const CATEGORIES = [
+    { key:'housing', label:'السكن والعقار',        icon:'fa-building',        color:'#4DA8FF' },
+    { key:'telecom', label:'الاتصالات والإنترنت', icon:'fa-tower-broadcast', color:'#00D9A8' },
+    { key:'energy',  label:'الطاقة والمرافق',     icon:'fa-bolt',            color:'#FFB938' },
+    { key:'health',  label:'الصحة والتأمينات',     icon:'fa-briefcase-medical', color:'#FF6B5B' },
+    { key:'finance', label:'البنوك والمالية',       icon:'fa-university',      color:'#9B8CFF' },
+    { key:'travel',  label:'السفر والحجوزات',       icon:'fa-plane',           color:'#F472B6' },
+  ];
+
+  const SERVICES = {
+    'lpp-inscription':  { name:'ENPI - اقتناء سكن LPP', icon:'fa-key', url:'https://www.enpi-net.dz/ENPI/', color:'#0B6E5A', cat:'housing', code:'LP' },
+    ooredoo:            { name:'أوريدو', icon:'fa-mobile-alt', url:'https://estorm.ooredoo.dz/e-payment/payment/public/?lang=fr', color:'#D1583F', cat:'telecom', code:'OT' },
+    djezzy:             { name:'جيزي', icon:'fa-phone', url:'https://moncompte.djezzy.dz/ar/guest/recharge', color:'#E1A253', cat:'telecom', code:'DJ' },
+    mobilis:            { name:'موبيليس', icon:'fa-sim-card', url:'https://e-paiement.mobilis.dz/', color:'#2E6FA7', cat:'telecom', code:'MB' },
+    'algierie-telecom':  { name:'اتصالات الجزائر', icon:'fa-phone-volume', url:'https://www.algerietelecom.dz/fr/paiement-en-ligne', color:'#B24C6B', cat:'telecom', code:'AT' },
+    internet:           { name:'الإنترنت الثابت', icon:'fa-wifi', url:'https://paiement.at.dz/index.php?p=voucher_internet&produit=in', color:'#3A7CA5', cat:'telecom', code:'IN' },
+    sonelgaz:           { name:'سونلغاز', icon:'fa-bolt', url:'https://www.sonelgaz.dz/fr/paiement-en-ligne', color:'#C77B33', cat:'energy', code:'SG' },
+    ade:                { name:'الجزائرية للمياه', icon:'fa-droplet', url:'https://www.ade.dz/e-paiement/', color:'#2E8FA3', cat:'energy', code:'AD' },
+    aadl:               { name:'AADL', icon:'fa-building', url:'https://aadlgestimmo.dz/epayement/View/index.php', color:'#12977C', cat:'housing', code:'AL' },
+    'aadl-relogin':      { name:'AADL — تجديد الدخول', icon:'fa-key', url:'https://aadl.dz/relogin', color:'#0B6E5A', cat:'housing', code:'AR' },
+    cnas:               { name:'صندوق الضمان (شافي)', icon:'fa-briefcase-medical', url:'https://elhanaa.cnas.dz/index.jsp', color:'#B0473F', cat:'health', code:'CN' },
+    badr:               { name:'بنك الفلاحة BADR', icon:'fa-university', url:'https://www.badr.dz/epayment', color:'#3C8C5F', cat:'finance', code:'BD' },
+    elit:               { name:'ELIT للدفع', icon:'fa-coins', url:'https://epayement.elit.dz/?lang=ar', color:'#B69440', cat:'finance', code:'EL' },
+    airline:            { name:'الخطوط الجوية الجزائرية', icon:'fa-plane', url:'https://www.airalgerie.dz/fr/paiement-en-ligne', color:'#3E6FA6', cat:'travel', code:'AH' },
+    adhahi:             { name:'حجز أضحيتي', icon:'fa-house-chimney', url:'https://adhahi.dz/auth/reservation', color:'#7A5C9E', cat:'travel', code:'AH' },
+  };
+
+  let customLinks = [];
+  let editingIndex = null;
+
+  const el = id => document.getElementById(id);
+  const content = el('content');
+
+  function catLabel(key){ return CATEGORIES.find(c=>c.key===key)?.label || ''; }
+  function catColor(key){ return CATEGORIES.find(c=>c.key===key)?.color || '#00D9A8'; }
+
+  // ==========================================================
+  // SIDEBAR NAV
+  // ==========================================================
+  function buildSidebar(){
+    let html = `<div class="menu-label" style="color:var(--teal)">
+      <i class="fas fa-house" style="color:var(--teal);font-size:10px"></i> نظرة عامة
+    </div>
+    <button class="menu-item active" data-service="home" onclick="showHome()"><i class="fas fa-house"></i> الرئيسية</button>`;
+    CATEGORIES.forEach(cat=>{
+      const items = Object.entries(SERVICES).filter(([,s])=>s.cat===cat.key);
+      if(!items.length) return;
+      html += `<div class="menu-label"><span class="cat-dot" style="background:${cat.color};color:${cat.color}"></span>${cat.label}</div>`;
+      items.forEach(([key,s])=>{
+        html += `<button class="menu-item" data-service="${key}" onclick="openService('${key}')"><i class="fas ${s.icon}"></i> ${s.name}</button>`;
+      });
+    });
+    el('sidebarMenu').innerHTML = html;
+  }
+
+  function setActive(key){
+    document.querySelectorAll('.menu-item').forEach(i=>i.classList.toggle('active', i.dataset.service===key));
+  }
+
+  // ==========================================================
+  // TOAST
+  // ==========================================================
+  let toastTimer=null;
+  function showToast(msg, icon='fa-check-circle', color='var(--teal)'){
+    el('toastMessage').textContent = msg;
+    const ic = el('toastIcon'); ic.className = `fas ${icon}`; ic.style.color = color;
+    el('toast').classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> el('toast').classList.remove('show'), 2800);
+  }
+
+  // ==========================================================
+  // HOME
+  // ==========================================================
+  function stubHTML(key, s){
+    return `
+      <div class="stub" style="--service-color:${s.color}" onclick="openService('${key}')">
+        <div class="stub-top">
+          <div class="stub-icon"><i class="fas ${s.icon}"></i></div>
+          <div class="stub-seal">${s.code}</div>
+        </div>
+        <div class="stub-name">${s.name}</div>
+        <div class="stub-cat">${catLabel(s.cat)}</div>
+        <div class="stub-tear"></div>
+        <div class="stub-bottom"><span>الدفع الآن</span><i class="fas fa-arrow-left"></i></div>
+      </div>`;
+  }
+
+  function customLinkHTML(item, idx){
+    return `
+      <div class="custom-item" onclick="openCustomLink(${idx})">
+        <i class="fas fa-link link-i"></i>
+        <span>${item.name}</span>
+        <i class="fas fa-trash del" onclick="event.stopPropagation(); deleteCustomLink(${idx})"></i>
+      </div>`;
+  }
+
+  function showHome(){
+    setActive('home');
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('ar-DZ', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+    let servicesHTML = '';
+    CATEGORIES.forEach(cat=>{
+      const items = Object.entries(SERVICES).filter(([,s])=>s.cat===cat.key);
+      if(!items.length) return;
+      servicesHTML += `
+        <div class="sec-head">
+          <h2>
+            <span class="cat-bullet" style="background:${cat.color};box-shadow:0 0 12px ${cat.color}"></span>
+            ${cat.label}
+          </h2>
+          <span class="count mono">${String(items.length).padStart(2,'0')}</span>
+        </div>
+        <div class="stub-grid">${items.map(([k,s])=>stubHTML(k,s)).join('')}</div>`;
+    });
+
+    const customHTML = customLinks.length
+      ? `<div class="custom-grid">${customLinks.map((c,i)=>customLinkHTML(c,i)).join('')}</div>`
+      : `<div class="empty"><i class="fas fa-link"></i><p>لا توجد روابط مخصّصة بعد</p><p class="hint">أضف اختصارًا لأي خدمة دفع تستخدمها بانتظام</p></div>`;
+
+    content.innerHTML = `
+      <div class="fade-in">
+        <div class="hero">
+          <div class="hero-eyebrow"><i class="fas fa-receipt"></i> إيصال الدخول <span class="mono">· ${dateStr}</span></div>
+          <h1>ادفع فواتيرك الإدارية والاتصالات من مكان واحد</h1>
+          <p>وصول مباشر إلى بوّابات الدفع الرسمية لمؤسسات الاتصالات والطاقة والسكن والبنوك في الجزائر — كل خدمة تُفتح في نافذتها الخاصة والآمنة.</p>
+          <div class="hero-stats">
+            <div class="hero-stat"><div class="n mono">${String(Object.keys(SERVICES).length).padStart(2,'0')}</div><div class="l">خدمة موحّدة</div></div>
+            <div class="hero-stat"><div class="n mono">${String(CATEGORIES.length).padStart(2,'0')}</div><div class="l">قطاعات مغطّاة</div></div>
+            <div class="hero-stat"><div class="n mono">${String(customLinks.length).padStart(2,'0')}</div><div class="l">رابط مخصّص</div></div>
+          </div>
+        </div>
+
+        ${servicesHTML}
+
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><i class="fas fa-star"></i> روابطي المخصّصة</div>
+            <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> إضافة رابط</button>
+          </div>
+          ${customHTML}
+        </div>
+
+        <div class="footnote">
+          منصّة القبض · دليل وصول إلى بوّابات الدفع الرسمية — لا تقوم المنصّة بمعالجة أي مدفوعات ولا تخزّن بيانات مصرفية.<br>
+          الروابط المخصّصة محفوظة في هذه الجلسة فقط ولن تُحفظ بعد إغلاق الصفحة.<br>
+          تطوير: ركاب عبدالقادر · <span class="mono" style="direction:ltr;">0552656078</span>
+        </div>
+      </div>`;
+    el('statusMessage').textContent = 'الصفحة الرئيسية';
+  }
+
+  // ==========================================================
+  // SERVICE PAGE
+  // ==========================================================
+  function openService(key){
+    const s = SERVICES[key];
+    if(!s) return;
+    setActive(key);
+    window.open(s.url, '_blank');
+    showToast(`تم فتح ${s.name} في نافذة جديدة`, 'fa-arrow-up-right-from-square', 'var(--teal)');
+    el('statusMessage').textContent = `تم فتح — ${s.name}`;
+
+    content.innerHTML = `
+      <div class="fade-in">
+        <div class="hero" style="background:
+          radial-gradient(circle at 15% 20%, rgba(255,185,56,0.22), transparent 45%),
+          radial-gradient(circle at 85% 85%, rgba(0,0,0,0.2), transparent 50%),
+          linear-gradient(135deg, ${s.color}ee 0%, ${s.color}88 100%);
+          box-shadow:0 20px 50px -20px ${s.color}88;
+          border-color:${s.color}55;">
+          <div class="hero-eyebrow"><i class="fas ${s.icon}"></i> بوّابة الدفع <span class="mono">· ${catLabel(s.cat)}</span></div>
+          <h1>${s.name}</h1>
+          <p>فُتحت بوّابة الدفع الرسمية في نافذة جديدة. إن لم تظهر النافذة، تأكد من السماح للنوافذ المنبثقة في المتصفح، أو أعد الفتح يدويًا أدناه.</p>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button class="btn btn-primary" style="padding:13px 26px" onclick="window.open('${s.url}','_blank')"><i class="fas fa-arrow-up-right-from-square"></i> إعادة فتح ${s.name}</button>
+          <button class="btn btn-ghost" style="padding:13px 26px" onclick="showHome()"><i class="fas fa-house"></i> العودة إلى الرئيسية</button>
+        </div>
+      </div>`;
+  }
+
+  // ==========================================================
+  // CUSTOM LINKS — modal based
+  // ==========================================================
+  function openModal(){
+    editingIndex = null;
+    el('linkNameInput').value = '';
+    el('linkUrlInput').value = '';
+    el('modalOverlay').classList.add('show');
+    setTimeout(()=> el('linkNameInput').focus(), 50);
+  }
+  function closeModal(){ el('modalOverlay').classList.remove('show'); }
+
+  function saveCustomLink(){
+    const name = el('linkNameInput').value.trim();
+    let url = el('linkUrlInput').value.trim();
+    if(!name || !url){ showToast('يرجى إدخال الاسم والرابط', 'fa-triangle-exclamation', 'var(--danger)'); return; }
+    if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    customLinks.push({ name, url });
+    closeModal();
+    showToast(`تمت إضافة «${name}»`, 'fa-check-circle', 'var(--teal)');
+    showHome();
+  }
+
+  function openCustomLink(idx){
+    const item = customLinks[idx];
+    if(!item) return;
+    window.open(item.url, '_blank');
+    showToast(`تم فتح «${item.name}»`, 'fa-arrow-up-right-from-square', 'var(--teal)');
+  }
+
+  function deleteCustomLink(idx){
+    const item = customLinks[idx];
+    if(!item) return;
+    customLinks.splice(idx,1);
+    showToast(`تم حذف «${item.name}»`, 'fa-trash', 'var(--danger)');
+    showHome();
+  }
+
+  el('modalOverlay').addEventListener('click', e=>{ if(e.target.id==='modalOverlay') closeModal(); });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+  // ==========================================================
+  // SEARCH
+  // ==========================================================
+  el('searchInput').addEventListener('input', function(){
+    const q = this.value.trim().toLowerCase();
+    document.querySelectorAll('.stub').forEach(card=>{
+      const name = card.querySelector('.stub-name')?.textContent?.toLowerCase() || '';
+      card.style.display = (q.length < 2 || name.includes(q)) ? '' : 'none';
+    });
+    document.querySelectorAll('.sec-head').forEach(head=>{
+      const grid = head.nextElementSibling;
+      if(!grid || !grid.classList.contains('stub-grid')) return;
+      const anyVisible = [...grid.children].some(c => c.style.display !== 'none');
+      head.style.display = anyVisible ? '' : 'none';
+      grid.style.display = anyVisible ? '' : 'none';
+    });
+  });
+
+  el('searchInput').addEventListener('keydown', function(e){
+    if(e.key !== 'Enter') return;
+    const q = this.value.trim();
+    if(!q) return;
+    const hit = Object.entries(SERVICES).find(([,s]) => s.name.includes(q));
+    if(hit){ openService(hit[0]); this.value=''; return; }
+    const custom = customLinks.findIndex(c => c.name.includes(q));
+    if(custom > -1){ openCustomLink(custom); this.value=''; return; }
+    showToast(`لم يتم العثور على «${q}»`, 'fa-circle-xmark', 'var(--danger)');
+  });
+
+  // ==========================================================
+  // SIDEBAR TOGGLE
+  // ==========================================================
+  const sidebar = el('sidebar'), overlay = el('sidebarOverlay');
+  const MOBILE_BP = 768;
+  let isMobile = window.innerWidth <= MOBILE_BP;
+  let sidebarOpen = !isMobile;
+
+  function applySidebarState(){
+    if(isMobile){
+      sidebar.classList.remove('hidden');
+      sidebar.classList.toggle('open', sidebarOpen);
+      overlay.classList.toggle('show', sidebarOpen);
+    } else {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+      sidebar.classList.toggle('hidden', !sidebarOpen);
+    }
+  }
+
+  function toggleSidebar(){
+    sidebarOpen = !sidebarOpen;
+    applySidebarState();
+  }
+  el('sidebarToggle').addEventListener('click', toggleSidebar);
+  overlay.addEventListener('click', ()=>{
+    sidebarOpen = false;
+    applySidebarState();
+  });
+  window.addEventListener('resize', ()=>{
+    const nowMobile = window.innerWidth <= MOBILE_BP;
+    if(nowMobile !== isMobile){
+      isMobile = nowMobile;
+      sidebarOpen = !isMobile;
+    }
+    applySidebarState();
+  });
+  applySidebarState();
+
+  // ==========================================================
+  // CLOCK
+  // ==========================================================
+  function tick(){
+    el('statusTime').textContent = new Date().toLocaleTimeString('en-GB', { hour12:false });
+  }
+  setInterval(tick, 1000); tick();
+
+  // ==========================================================
+  // INIT
+  // ==========================================================
+  buildSidebar();
+  showHome();
+</script>
+</body>
+</html>
