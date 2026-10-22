@@ -42,8 +42,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TARGET_URL = "https://rayendz.github.io/epaimen/";
-    private static final String HOST = "rayendz.github.io";
+    private static final String TARGET_URL = "https://ikraakhemis-maker.github.io/epaimen/";
+    private static final String HOST = "ikraakhemis-maker.github.io";
     // أقل إصدار WebView نعتبره مناسباً لمواقع اليوم (الأقدم قد تتعطل فيه أزرار القوائم)
     private static final int MIN_WEBVIEW_MAJOR = 90;
 
