@@ -3,6 +3,7 @@
     <string name="app_name">منصّة القبض</string>
     <string name="offline_title">لا يوجد اتصال بالإنترنت</string>
     <string name="offline_msg">تحقق من الاتصال ثم اسحب للأسفل أو اضغط إعادة المحاولة</string>
+    <string name="open_platform">فتح المنصّة</string>
     <string name="retry">إعادة المحاولة</string>
     <string name="download_started">بدأ التحميل…</string>
     <string name="webview_old_title">متصفح النظام قديم</string>
