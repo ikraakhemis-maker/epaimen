@@ -17,7 +17,10 @@ import android.os.Environment;
 import android.view.Gravity;
 import android.view.View;
 import android.webkit.CookieManager;
+import android.webkit.ConsoleMessage;
 import android.webkit.URLUtil;
+import android.webkit.WebResourceResponse;
+import android.widget.Toast;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
@@ -102,6 +105,8 @@ public class MainActivity extends AppCompatActivity {
         s.setDisplayZoomControls(false);
         s.setAllowFileAccess(false);
         s.setCacheMode(WebSettings.LOAD_DEFAULT);
+        s.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+        webView.setBackgroundColor(0xFFFFFFFF);
 
         // حفظ جلسة تسجيل الدخول و"تذكرني"
         CookieManager cookies = CookieManager.getInstance();
@@ -116,6 +121,16 @@ public class MainActivity extends AppCompatActivity {
             public void onProgressChanged(WebView view, int p) {
                 progress.setProgress(p);
                 progress.setVisibility(p >= 100 ? View.GONE : View.VISIBLE);
+            }
+
+            @Override
+            public boolean onConsoleMessage(ConsoleMessage cm) {
+                if (cm.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
+                    Toast.makeText(MainActivity.this,
+                            "JS: " + cm.message() + " (" + cm.lineNumber() + ")",
+                            Toast.LENGTH_LONG).show();
+                }
+                return true;
             }
 
             @Override
@@ -166,6 +181,15 @@ public class MainActivity extends AppCompatActivity {
                 swipe.setRefreshing(false);
                 if (!hadError) offlineView.setVisibility(View.GONE);
                 CookieManager.getInstance().flush();
+            }
+
+            @Override
+            public void onReceivedHttpError(WebView view, WebResourceRequest req, WebResourceResponse r) {
+                if (req.isForMainFrame()) {
+                    Toast.makeText(MainActivity.this,
+                            "HTTP " + r.getStatusCode() + " " + req.getUrl(),
+                            Toast.LENGTH_LONG).show();
+                }
             }
 
             @Override
